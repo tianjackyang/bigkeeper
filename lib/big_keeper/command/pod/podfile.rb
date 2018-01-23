@@ -8,13 +8,14 @@ require 'big_keeper/util/logger'
 
 module BigKeeper
 
-  def self.podfile_detect(path)
+  def self.podfile_detect(path,is_complete)
+      p '111111111'
       # Parse Bigkeeper file
       BigkeeperParser.parse("#{path}/Bigkeeper")
       # Get modules' name
       module_list = BigkeeperParser.module_names
       # initialize PodfileDetector
-      detector = PodfileDetector.new(path,module_list)
+      detector = PodfileDetector.new(path,module_list,is_complete)
       # Get unlocked third party pods list
       unlock_pod_list = detector.get_unlock_pod_list
       # Print out unlock pod list
@@ -25,7 +26,7 @@ module BigKeeper
 
   end
 
-  def self.podfile_lock(path)
+  def self.podfile_lock(path,is_complete)
       # Parse Bigkeeper file
       BigkeeperParser.parse("#{path}/Bigkeeper")
       # Get modules' name

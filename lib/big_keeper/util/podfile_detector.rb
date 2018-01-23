@@ -6,16 +6,27 @@ module BigKeeper
 
 class PodfileDetector
 
-  attr_accessor :module_list, :main_path
+  attr_accessor :module_list, :main_path,:is_complete
   $unlock_pod_list = []
   $modify_pod_list = {}
 
-  def initialize(main_path,module_list)
+  def initialize(main_path,module_list,is_complete)
     @module_list = module_list
     @main_path = main_path
+    @is_complete = is_complete
   end
 
   def get_unlock_pod_list
+    podfile_lines = File.readlines("#{@main_path}/Podfile")
+    Logger.highlight("Analyzing Podfile...") unless podfile_lines.size.zero?
+      podfile_lines.collect do |sentence|
+      deal_podfile_line(sentence) unless sentence =~(/(\d+.){1,2}\d+/)
+      end
+      $unlock_pod_list
+      # p $unlock_pod_list
+  end
+
+  def get_complete_dependency
     podfile_lines = File.readlines("#{@main_path}/Podfile")
     Logger.highlight("Analyzing Podfile...") unless podfile_lines.size.zero?
       podfile_lines.collect do |sentence|
@@ -47,19 +58,23 @@ class PodfileDetector
 
       temp_sentence = sentence.strip
       pod_name = get_lock_podname(temp_sentence)
-      if deal_list.include?(pod_name)
-        current_version = $result[pod_name]
-        temp_version = get_lock_version(temp_sentence)
-        if temp_version != nil
-          if current_version != nil
-            $result[pod_name] = chose_version(current_version,temp_version)
-          else
-            $result[pod_name] = temp_version
+      if @is_complete
+
+      else
+        if deal_list.include?(pod_name)
+          current_version = $result[pod_name]
+          temp_version = get_lock_version(temp_sentence)
+          if temp_version != nil
+            if current_version != nil
+              $result[pod_name] = chose_version(current_version,temp_version)
+            else
+              $result[pod_name] = temp_version
+            end
           end
         end
       end
     end
-    return $result
+   $result
   end
 
   def self.get_pod_model(sentence)

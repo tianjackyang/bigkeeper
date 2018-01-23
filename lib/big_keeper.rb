@@ -265,8 +265,17 @@ module BigKeeper
 
     podfile.desc 'Detect podname should be locked.'
     podfile.command :detect do |detect|
-      detect.action do |global_options,options,args|
-        podfile_detect(path)
+      detect.desc 'Generate main dependency tree.'
+      detect.command :default do |default|
+        default.action do |global_options,options,args|
+          podfile_detect(path,false)
+        end
+      end
+      detect.desc 'Generate dependency tree including submodule dependencies.'
+      detect.command :complete do |complete|
+        complete.action do |global_options,options,args|
+          podfile_detect(path,true)
+        end
       end
     end
 
